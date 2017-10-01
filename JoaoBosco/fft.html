@@ -1,0 +1,152 @@
+<html>
+	<head>
+		<script>
+			function Complex(re, im){
+				this.re = re;
+				this.im = im || 0.0;
+			}
+			Complex.prototype.add = function(other, dst) {
+				dst.re = this.re + other.re;
+				dst.im = this.im + other.im;
+				return dst;
+			}
+			Complex.prototype.sub = function(other, dst) {
+				dst.re = this.re - other.re;
+				dst.im = this.im - other.im;
+				return dst;
+			}
+			Complex.prototype.mul = function(other, dst){
+				//cache re in case dst === this
+				var r = this.re * other.re - this.im * other.im;
+				dst.im = this.re * other.im + this.im * other.re;
+				dst.re = r;
+				return dst;
+			}
+			Complex.prototype.cexp = function(dst){
+				var er = Math.exp(this.re);
+				dst.re = er * Math.cos(this.im);
+				dst.im = er * Math.sin(this.im);
+				return dst;
+			}
+			Complex.prototype.log = function(){
+				if( !this.re )
+					console.log(this.im.toString()+'j');
+				else if( this.im < 0 )
+					console.log(this.re.toString()+this.im.toString()+'j');
+				else
+					console.log(this.re.toString()+'+'+this.im.toString()+'j');
+			}
+ 
+			function fft(amplitudes){
+				var N = amplitudes.length;
+				if( N <= 1 )
+					return amplitudes;
+			 
+				var even = [];
+				var odd = [];
+
+				var half = parseInt(N / 2);
+				for(var i = 0; i < half; ++i){
+					even.push(amplitudes[i * 2]);
+					odd.push(amplitudes[i * 2 + 1]);
+				}
+				even = fft(even);
+				odd = fft(odd);
+			 
+				var a = -2*Math.PI;
+				for(var k = 0; k < half; ++k){
+					if(!(even[k] instanceof Complex))
+						even[k] = new Complex(even[k], 0);
+					if(!(odd[k] instanceof Complex))
+						odd[k] = new Complex(odd[k], 0);
+					var p = k/N;
+					var t = new Complex(0, a * p);
+					t.cexp(t).mul(odd[k], t);
+					amplitudes[k] = even[k].add(t, odd[k]);
+					amplitudes[k + half] = even[k].sub(t, even[k]);
+				}
+				return amplitudes;
+			}
+			
+			function genTime(start, stop, delta){
+				ans = [];
+				var t = start;
+				while(t <= stop){
+					ans.push(t.toFixed(2));
+					t += delta;
+				}
+				return ans;
+			}
+			
+			var color = {red : "#FF0000", blue: "#0052A4"}
+			
+			function plot(myChart, myLabels, myData, graphName, isScatter){
+				var ctx = document.getElementById(myChart).getContext('2d');
+				var myData = {
+					labels: myLabels,
+					datasets: [{
+						label: graphName,
+						borderColor: color.blue,
+						pointBorderWidth: 0.001,
+						fill: false,
+						lineTension: 0.4,
+						data: myData
+					}]
+				}
+				if(!isScatter){
+					myData["datasets"][0]["borderWidth"] = 1.5;
+					myData["datasets"][0]["pointBackgroundColor"] = 'transparent';
+				}else{
+					myData["datasets"][0]["pointBackgroundColor"] = color.blue;
+				}	
+				var myChart = new Chart(ctx, {
+					type: 'line',
+					data: myData,
+					options: {
+						responsive: false,
+						showLines: !isScatter
+					}
+				});
+			}
+		</script>
+		<script src="Chart.bundle.js"></script>
+		<script src="jquery-3.2.0.min.js"></script>
+		<script>
+			$( document ).ready(function() {				
+				t = genTime(0, 3*Math.PI, 0.25);//getting t[i] values
+				
+				
+				x = [];
+				for(var i = 0; i < t.length; i++){
+					x.push(2.0 * Math.cos(10 * t[i]) - 4 * Math.sin(30 * t[i]));//filling Y values
+				}
+				plot("myChart1", t, x, "x(t) x t", 0);//ploting
+				
+				y = []
+				for(var i = 0; i < x.length; i++){
+					y.push(x[i] + Math.random()*5);
+				}
+				plot("myChart2", t, y, "y(t) x t", 0);//ploting
+				
+				X = fft(x);
+				for(var  i = 0; i < X.length; i++){
+					X[i] = (X[i].re + X[i].im) * (X[i].re + X[i].im);
+				}
+				plot("myChart3", t, X, "fft( x(t) ) x t", 0);//ploting
+				
+				Y = fft(y);
+				for(var  i = 0; i < X.length; i++){
+					Y[i] = (Y[i].re + Y[i].im) * (Y[i].re + Y[i].im);
+				}
+				plot("myChart4", t, Y, "fft( y(t) ) x t", 0);//ploting
+			});
+		</script>
+	</head>
+	<body>
+		<canvas id="myChart1" width="1200" height="300"></canvas>
+		<canvas id="myChart2" width="1200" height="300"></canvas>
+		
+		<canvas id="myChart3" width="1200" height="300"></canvas>
+		<canvas id="myChart4" width="1200" height="300"></canvas>
+	</body>
+</html>

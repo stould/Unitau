@@ -1,0 +1,42 @@
+<html>
+	<head>
+		<script src="C:\Users\Vinicius\Documents\Projects\JoaoBosco\Chart.bundle.js"></script>
+		<script src="C:\Users\Vinicius\Documents\Projects\JoaoBosco\jquery-3.2.0.min.js"></script>
+		<script>
+			$( document ).ready(function() {
+				var color = {red : "#FF0000", blue: "#0052A4"}
+				var ctx = document.getElementById('myChart').getContext('2d');
+				var myData = {
+						labels: [],
+						datasets: [{
+							label: "y(t) = 4 * cos(3t) + j * sin(3t) | T = 0 : 0.1 : 2π - Função distreta",
+							borderColor: color.blue,
+							borderWidth: 0.3,
+							pointBorderWidth: 0.001,
+							pointBackgroundColor: color.red,
+							fill: false,
+							lineTension: 0.4,
+							data: []
+						}]
+					}
+				var t = 0.0;
+				while(t/10.0 <= 2*Math.PI){
+					t += 1;
+					console.log(t);
+					myData["labels"].push(t/10);
+					myData["datasets"][0]["data"].push(Math.sqrt(4* Math.cos(2 * (t/10)) * Math.cos(2 * (t/10)) + Math.sin(2 * (t/10)) * Math.sin(2 * (t/10)) ));
+				}
+				var myChart = new Chart(ctx, {
+					type: 'line',
+					data: myData,
+					options: {
+						responsive: false,
+					}
+				});
+			});
+		</script>
+	</head>
+	<body>
+		<canvas id="myChart" width="500" height="250"></canvas>
+	</body>
+</html>
