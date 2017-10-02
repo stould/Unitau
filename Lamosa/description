@@ -1,0 +1,14 @@
+Simplex method to solve system of linear equations.
+
+Input format:
+N = number of rows
+M = number of columns
+X1, X2 ... XN = constraint coefficients
+P1, P2 ... PN = gap variables
+
+N M
+X1 + X2 + ... + XN + P1 + P2 + ... + PN = C -> Function Z
+X1 + X2 + ... + XN + 1 + P2 + P3 + ... + PN = C -> constraint 1
+X1 + X2 + ... + XN + P1 + 1 + P3 + ... + PN = C -> constraint 2
+X1 + X2 + ... + XN + P1 + P2 + 1 + ... + PN = C -> constraint 3
+X1 + X2 + ... + XN + P1 + P2 + P3 + ... + 1 = C -> constraint N
