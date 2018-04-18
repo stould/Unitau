@@ -20,21 +20,20 @@ double integrate(double lim_inf, double lim_sup, int n){
     double h = (lim_sup - lim_inf) / (double) n;
     double area = 0.0;
 
-    #pragma omp parallel firstprivate(h) reduction(+:area)
+    int nthreads;
+
+    #pragma omp parallel default(shared) firstprivate(h)
     {
         int id = omp_get_thread_num();
-        int nthreads = omp_get_num_threads();
-        int chunkSize = n / nthreads;
 
-        int start, end;
-        start = chunkSize * id;
-        end = chunkSize * (id + 1);
-        if(n % nthreads != 0 && id == nthreads - 1){
-            end = n;
+        #pragma omp single
+        {
+            nthreads = omp_get_num_threads();
         }
-
+        
         //each thread must take the proper part of the function [start, end]
-        for(int i = start; i < end; i++){
+        #pragma omp for reduction(+:area)
+        for(int i = 0; i < n; i++){
             double x1 = lim_inf + (double) i * h;
             double x2 = x1 + h;
             area += getTrapezoidArea(h, x1, x2);
