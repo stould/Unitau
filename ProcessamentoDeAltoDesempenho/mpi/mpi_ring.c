@@ -46,5 +46,6 @@ int main(){
 			ierr = MPI_Send(&curr_password, 1, MPI_INT, (pid + 1) % size, throw_tag, MPI_COMM_WORLD);
 		}
 	}
+    MPI_Finalize();
 	return 0;
 }
