@@ -10,9 +10,8 @@ const int name_tag = 2;
 const int name_len_tag = 3;
 
 /*
-	This program works like a ring, each processor sends the 'ball' called password to the following processor.
+	This program works like a ring, each processor sends name and id to the following processor.
 	The last processors sends it back to the MASTER.
-	Each processor just sums its 2 ^ pid to the current password as well as the MASTER.
 */
 int main(){
     MPI_Status status;
